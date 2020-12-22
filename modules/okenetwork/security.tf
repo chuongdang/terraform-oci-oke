@@ -35,7 +35,7 @@ resource "oci_core_security_list" "public_workers_seclist" {
     protocol    = local.all_protocols
     stateless   = false
   }
-  
+
   dynamic "ingress_security_rules" {
     iterator = public_worker_ingress_iterator
     for_each = local.public_worker_ingress
@@ -157,7 +157,7 @@ resource "oci_core_security_list" "private_workers_seclist" {
 
   egress_security_rules {
     # leave this for now
-    # investigate the list of ports required for oracle services (atp, adw, object storage and streaming and add these to locals) 
+    # investigate the list of ports required for oracle services (atp, adw, object storage and streaming and add these to locals)
 
     description      = "allow stateful egress to oracle services network through the service gateway"
     destination      = lookup(data.oci_core_services.all_oci_services.services[0], "cidr_block")
@@ -191,6 +191,19 @@ resource "oci_core_security_list" "private_workers_seclist" {
         max = local.ssh_port
         min = local.ssh_port
       }
+    }
+  }
+
+  ingress_security_rules {
+    description = "allow ingress from LB subnet"
+    protocol    = local.tcp_protocol
+    source      = local.pub_lb_subnet
+    source_type = "CIDR_BLOCK"
+    stateless   = false
+
+    tcp_options {
+      max = local.node_port_max
+      min = local.node_port_min
     }
   }
 
