@@ -20,7 +20,7 @@ resource "oci_containerengine_node_pool" "nodepools" {
         subnet_id           = var.oke_cluster.cluster_subnets["workers"]
       }
     }
-    # set quantity to a minimum of 1 to allow small clusters. 
+    # set quantity to a minimum of 1 to allow small clusters.
     size = max(1, lookup(each.value, "node_pool_size", 1))
   }
   dynamic "node_shape_config" {
@@ -43,8 +43,9 @@ resource "oci_containerengine_node_pool" "nodepools" {
   lifecycle {
     ignore_changes = [kubernetes_version]
   }
-  # initial_node_labels {
-  #   key   = "key"
-  #   value = "value"
-  # }
+
+  initial_node_labels {
+    key   = "name"
+    value = lookup(each.value, "name", "app")
+  }
 }
